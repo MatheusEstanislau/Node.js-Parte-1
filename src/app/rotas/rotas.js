@@ -1,3 +1,6 @@
+const db = require('../../config/database');
+const LivroDao = require('../infra/livro-dao');
+
 module.exports = (app) => {
 
     app.get("/", (req,res)=>{
@@ -17,26 +20,19 @@ module.exports = (app) => {
         );
     });
 
-    app.get("/livros", (req,res)=>{
-        res.marko(
-            require('../views/livros/lista/lista.marko'),
-            {
-                livros: [
-                    {
-                        id: 1,
-                        titulo: 'Fundamentos do Node'
-                    },
-                    {
-                        id:2,
-                        titulo: 'Node Avançado'
-                    },
-                    {
-                        id:3,
-                        titulo: 'C++ Como programar'
-                    }
-                ]
-            }
-        );
+    app.get('/livros', function(req, resp) {
+
+        const livroDao = new LivroDao(db);
+        livroDao.lista()
+            .then(livros => resp.marko(
+                require('../views/livros/lista/lista.marko'),
+                {
+                    livros: livros
+                }
+
+            ))
+            .catch(erro => console.log(erro));
+
     });
 };
 
